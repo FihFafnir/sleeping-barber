@@ -9,7 +9,7 @@ class Barber:
         self.lock = threading.Lock()
         self.barber_awake = threading.Event()
         self.barber_is_not_attending = threading.Event()
-        self.semaphore = threading.Semaphore(max_queue_size)
+        self.waiting_chairs = threading.Semaphore(max_queue_size)
 
     def attend_customer(self):
         """Método para o barbeiro atender um cliente."""
@@ -22,7 +22,7 @@ class Barber:
             self.lock.acquire()
 
             if self.waiting_queue:
-                self.semaphore.release()  # Libera uma "cadeira" no semáforo para um novo cliente
+                self.waiting_chairs.release()  # Libera uma "cadeira" no semáforo para um novo cliente
                 self.barber_is_not_attending.clear()
                 customer = self.waiting_queue.pop(0)
                 print(f"Barbeiro atendendo o cliente {customer.id}.")
@@ -37,7 +37,7 @@ class Barber:
 
     def add_customer(self, customer):
         """Método para adicionar um cliente à fila de espera, com controle de semáforo."""
-        if self.semaphore.acquire(blocking=False):  # Tenta adquirir o semáforo
+        if self.waiting_chairs.acquire(blocking=False):  # Tenta adquirir o semáforo
             with self.lock:
                 self.waiting_queue.append(customer)
                 print(f"Cliente {customer.id} entrou na fila.")
