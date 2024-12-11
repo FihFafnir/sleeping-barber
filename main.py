@@ -8,24 +8,32 @@ class Barber:
         self.waiting_queue = []
         self.lock = threading.Lock()
         self.barber_awake = threading.Event()
+        self.barber_is_not_attending = threading.Event()
         self.semaphore = threading.Semaphore(max_queue_size)
 
     def attend_customer(self):
         """Método para o barbeiro atender um cliente."""
+
+        self.barber_is_not_attending.set()
+
         while True:
             self.barber_awake.wait()  # Espera até um cliente estar na fila
+            self.barber_is_not_attending.wait()  # Termina de atender o cliente atual
             self.lock.acquire()
 
             if self.waiting_queue:
                 self.semaphore.release()  # Libera uma "cadeira" no semáforo para um novo cliente
+                self.barber_is_not_attending.clear()
                 customer = self.waiting_queue.pop(0)
                 print(f"Barbeiro atendendo o cliente {customer.id}.")
                 self.lock.release()
 
                 time.sleep(random.uniform(1, 3))  # Tempo aleatório de atendimento
+                self.barber_is_not_attending.set()
                 print(f"Barbeiro terminou de atender o cliente {customer.id}.")
             else:
                 self.barber_awake.clear()  # Se a fila estiver vazia, o barbeiro volta a dormir
+                self.lock.release()
 
     def add_customer(self, customer):
         """Método para adicionar um cliente à fila de espera, com controle de semáforo."""
@@ -49,7 +57,7 @@ class Customer(threading.Thread):
 
     def run(self):
         """Simula a chegada do cliente e sua tentativa de ser atendido."""
-        time.sleep(random.uniform(0.5, 2))  # Tempo de chegada aleatório
+        time.sleep(random.uniform(1, 10))  # Tempo de chegada aleatório
         self.barber.add_customer(self)
 
 
