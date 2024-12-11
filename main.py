@@ -18,18 +18,19 @@ class Barber:
 
         while True:
             self.barber_awake.wait()  # Espera até um cliente estar na fila
-            self.barber_is_not_attending.wait()  # Termina de atender o cliente atual
+            self.barber_is_not_attending.wait()  # Espera o terminar de atender o cliente atual
             self.lock.acquire()
 
             if self.waiting_queue:
                 self.waiting_chairs.release()  # Libera uma "cadeira" no semáforo para um novo cliente
-                self.barber_is_not_attending.clear()
+                self.barber_is_not_attending.clear()  # Começa a atender o cliente atual
                 customer = self.waiting_queue.pop(0)
+
                 print(f"Barbeiro atendendo o cliente {customer.id}.")
                 self.lock.release()
 
                 time.sleep(random.uniform(1, 3))  # Tempo aleatório de atendimento
-                self.barber_is_not_attending.set()
+                self.barber_is_not_attending.set()  # Termina de atender o cliente atual
                 print(f"Barbeiro terminou de atender o cliente {customer.id}.")
             else:
                 self.barber_awake.clear()  # Se a fila estiver vazia, o barbeiro volta a dormir
