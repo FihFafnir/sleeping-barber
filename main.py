@@ -5,11 +5,11 @@ import random
 
 class Barber:
     def __init__(self, max_queue_size):
-        self.waiting_queue = []
-        self.lock = threading.Lock()
-        self.barber_awake = threading.Event()
-        self.barber_is_not_attending = threading.Event()
-        self.waiting_chairs = threading.Semaphore(max_queue_size)
+        self.waiting_queue = [] # Clone da fila de espera
+        self.lock = threading.Lock() # Mutex do sistema. Variavel de controle para colocar alguem na fila de espera
+        self.barber_awake = threading.Event() # Lock do barbeiro, para saber se está acordado
+        self.barber_is_not_attending = threading.Event() # Lock do babeiro, para saber se ele está atendendo um cliente
+        self.waiting_chairs = threading.Semaphore(max_queue_size) # fila de cadeiras para espera dos clientes
 
     def attend_customer(self):
         """Método para o barbeiro atender um cliente."""
