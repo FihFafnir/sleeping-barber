@@ -40,5 +40,5 @@ O sistema consiste em dois componentes principais:
 Para rodar o programa, basta executar o script Python:
 
 ```bash
-python barbeiro_dorminhoco.py
+python main.py
 ```````
